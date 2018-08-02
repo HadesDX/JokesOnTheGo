@@ -1,0 +1,13 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <MultiSelectListPreference
+        android:defaultValue="@array/pref_host_list_default_value"
+        android:dialogTitle="Available Hosts"
+        android:enabled="true"
+        android:entries="@array/pref_host_list"
+        android:entryValues="@array/pref_host_list_values"
+        android:key="selected_hosts"
+        android:persistent="true"
+        android:title="Hosts" />
+
+</PreferenceScreen>

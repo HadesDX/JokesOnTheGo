@@ -1,0 +1,23 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.mtw.diego.jokesonthego.Explore">
+    <item
+        android:id="@+id/action_home"
+        android:onClick="launchHome"
+        android:orderInCategory="100"
+        android:title="@string/menu_explore_home"
+        app:showAsAction="always" />
+    <!--<item
+        android:id="@+id/action_favorites"
+        android:orderInCategory="100"
+        android:title="@string/menu_favorites"
+        app:showAsAction="always"
+        android:onClick="launchFavorites"/>
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="100"
+        android:title="@string/action_settings"
+        app:showAsAction="never"
+        android:onClick="launchSettings"/>-->
+</menu>
