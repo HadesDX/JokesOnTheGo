@@ -1,29 +1,24 @@
 package com.mtw.diego.jokesonthego;
 
 import android.annotation.TargetApi;
+import android.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.MultiSelectListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
-import android.app.ActionBar;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
-import android.preference.RingtonePreference;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
 
-import java.util.Collections;
+import com.mtw.diego.jokesonthego.helper.Utils;
+
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -41,7 +36,7 @@ import java.util.Set;
 public class Settings extends PreferenceActivity {
 
     private static final String TAG = "JokesSettings";
-
+    private static Context cntx;
     /**
      * A preference value change listener that updates the preference's summary
      * to reflect its new value.
@@ -64,22 +59,11 @@ public class Settings extends PreferenceActivity {
                                 : null);
             } else if (preference instanceof MultiSelectListPreference) {
                 MultiSelectListPreference pref = (MultiSelectListPreference) preference;
-                Log.i(TAG, pref.getValues().size() + " values size");
-                Log.i(TAG, pref.getEntries().length + " entris size");
-                Log.i(TAG, pref.getValues() + " values");
-                Log.i(TAG, value + " value");
                 if (value instanceof String) {
                     preference.setSummary(value.toString());
                 } else {
                     Set<String> vals = (Set<String>) value;
-                    int c = 0;
-                    Iterator<String> it = vals.iterator();
-                    while (it.hasNext()) {
-                        if (isNumeric(it.next())) {
-                            ++c;
-                        }
-                    }
-                    preference.setSummary(c + " Hosts selected");
+                    preference.setSummary(Utils.countIntegers(vals) + " Hosts selected");
                 }
                 Log.i(TAG, "MultiSelectListPreference changed!");
             } else {
@@ -87,13 +71,11 @@ public class Settings extends PreferenceActivity {
                 // simple string representation.
                 preference.setSummary(stringValue);
             }
+            Utils.applyPreferences(cntx);
             return true;
         }
     };
 
-    private static boolean isNumeric(String s) {
-        return s != null && s.matches("[-+]?\\d*\\.?\\d+");
-    }
 
     /**
      * Helper method to determine if the device has an extra-large screen. For
@@ -124,14 +106,7 @@ public class Settings extends PreferenceActivity {
     private static void bindPreferenceSummaryToValueHash(Preference preference) {
         preference.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
         Set<String> vals = PreferenceManager.getDefaultSharedPreferences(preference.getContext()).getStringSet(preference.getKey(), new HashSet<>());
-        int c = 0;
-        Iterator<String> it = vals.iterator();
-        while (it.hasNext()) {
-            if (isNumeric(it.next())) {
-                ++c;
-            }
-        }
-        sBindPreferenceSummaryToValueListener.onPreferenceChange(preference, c + " Hosts selected");
+        sBindPreferenceSummaryToValueListener.onPreferenceChange(preference, Utils.countIntegers(vals) + " Hosts selected");
     }
 
 
@@ -139,6 +114,7 @@ public class Settings extends PreferenceActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setupActionBar();
+        cntx = this;
     }
 
     /**
@@ -147,7 +123,6 @@ public class Settings extends PreferenceActivity {
     private void setupActionBar() {
         ActionBar actionBar = getActionBar();
         if (actionBar != null) {
-            // Show the Up button in the action bar.
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
     }
@@ -215,7 +190,8 @@ public class Settings extends PreferenceActivity {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.pref_data_sync);
             setHasOptionsMenu(true);
-            bindPreferenceSummaryToValue(findPreference("sync_frequency"));
+            bindPreferenceSummaryToValue(findPreference("max_buffer"));
+            bindPreferenceSummaryToValue(findPreference("max_read"));
         }
 
         @Override

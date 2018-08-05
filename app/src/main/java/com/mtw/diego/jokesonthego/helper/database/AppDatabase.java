@@ -8,11 +8,17 @@ import android.content.Context;
 
 import com.mtw.diego.jokesonthego.entity.Joke;
 
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+
 @Database(entities = {Joke.class}, version = 1, exportSchema = false)
 @TypeConverters(HostConverter.class)
 public abstract class AppDatabase extends RoomDatabase {
     private static AppDatabase instance;
     public static int MAX_NEW_JOKES = 60;
+    public static int JOKES_OLD = 3;
 
     public abstract JokeDao jokeDao();
 
@@ -27,6 +33,16 @@ public abstract class AppDatabase extends RoomDatabase {
             }
         }
         return instance;
+    }
+
+    public static synchronized void doClean(Context c) {
+        Disposable d2 = Observable.fromCallable(() -> {
+            AppDatabase.getDatabase(c).jokeDao().cleanUpOldJokes(JOKES_OLD);
+            return true;
+        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe();
+    }
+
+    public static synchronized void d() {
     }
 
 }

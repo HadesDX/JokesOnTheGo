@@ -8,7 +8,7 @@ interface ApiService {
     @GET("jokes/random")
     public Observable<ChuckNorrisResponse> getChuckJoke();
 
-    @GET("")
+    @GET(".")
     public Observable<ICanHazDadResponse> getICanHazDad();
 
 }

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">JokesOnTheGo</string>
+    <string name="title_activity_explore">Explorar</string>
+    <string name="menu_explore">Explorar</string>
+    <string name="menu_explore_home">Inicio</string>
+    <string name="menu_favorites">Favoritos</string>
+    <string name="title_activity_settings">Configuración</string>
+    <string name="menu_settings">Configuración</string>
+    <string name="action_settings">Configuración</string>
+    <string name="explore_save">Agregado a favoritos</string>
+    <string name="pref_header_hosts">Servidores</string>
+    <string name="pref_header_data"><![CDATA[Descarga & borrado]]></string>
+    <string name="pref_data_max_buffer">Maxima descarga de bromas adelantadas</string>
+    <string name="pref_data_max_read">Desechar bromas viejas despues de</string>
+    <string name="title_activity_favorites">Favoritos</string>
+    <string name="joke" translatable="false">bromas</string>
+    <string name="reads">lecturas</string>
+</resources>

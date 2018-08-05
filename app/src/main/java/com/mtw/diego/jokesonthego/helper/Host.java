@@ -25,4 +25,20 @@ public enum Host {
     public String getName() {
         return name;
     }
+
+    /**
+     * Return host, if invalid return CHUCK_NORRIS
+     *
+     * @param i
+     * @return matching host or a valid host always
+     */
+    public static Host getHost(Integer i) {
+        switch (i) {
+            case 0:
+                return CHUCK_NORRIS;
+            case 1:
+                return I_CAN_HAZ_DAD_JOKE;
+        }
+        return CHUCK_NORRIS;
+    }
 }

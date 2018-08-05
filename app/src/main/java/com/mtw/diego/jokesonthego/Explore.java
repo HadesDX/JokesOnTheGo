@@ -1,5 +1,9 @@
 package com.mtw.diego.jokesonthego;
 
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -23,6 +27,8 @@ import com.mtw.diego.jokesonthego.helper.Host;
 import com.mtw.diego.jokesonthego.helper.database.AppDatabase;
 import com.mtw.diego.jokesonthego.helper.network.JokesService;
 
+import java.util.Arrays;
+
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.reactivex.Observable;
@@ -31,7 +37,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
-public class Explore extends AppCompatActivity {
+public class Explore extends AppCompatActivity implements SensorEventListener {
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -44,11 +50,14 @@ public class Explore extends AppCompatActivity {
     private static SectionsPagerAdapter mSectionsPagerAdapter;
     private static EndlessPagerAdapter endlessPagerAdapter;
     private static String TAG = "JokesExplore";
+    private static final JokesService jokesService = JokesService.getJokesService();
+    private SensorManager mSensorManager;
+    private Sensor mAccelerometer;
     /**
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
-    private static final JokesService jokesService = JokesService.getJokesService();
+    private float sensorVal;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +74,8 @@ public class Explore extends AppCompatActivity {
         mViewPager.setAdapter(endlessPagerAdapter);
         mViewPager.setCurrentItem(1);
         ButterKnife.bind(this);
+        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
     }
 
     @Override
@@ -104,6 +115,35 @@ public class Explore extends AppCompatActivity {
         }
         Snackbar.make(view, R.string.explore_save, Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show();
+    }
+
+
+    protected void onResume() {
+        super.onResume();
+        mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+    }
+
+    protected void onPause() {
+        super.onPause();
+        mSensorManager.unregisterListener(this);
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent sensorEvent) {
+        if (sensorEvent.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
+            float sval = Math.abs(sensorEvent.values[1]);
+            if (sval > sensorVal && sval > 2) {
+                Log.i(TAG, "Sensor: " + sval);
+                mViewPager.setCurrentItem(mViewPager.getCurrentItem() + 1);
+            }
+            sensorVal = sval;
+        }
+
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {
+
     }
 
 
@@ -168,7 +208,7 @@ public class Explore extends AppCompatActivity {
                 }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe();
             });
             if (internalJoke == null) {
-                Disposable net = jokesService.getJoke(Host.CHUCK_NORRIS).subscribe(e -> {
+                Disposable net = jokesService.getJoke().subscribe(e -> {
                     //Log.i(TAG, "Remote: " + e.toString());
                     useJoke(e);
                     Observable.fromCallable(() -> {
@@ -182,30 +222,31 @@ public class Explore extends AppCompatActivity {
                         //Log.i(TAG, "GUARDADO A BD");
                         return true;
                     }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe();
+                }, err -> {
+                    Log.e(TAG, err.getMessage());
                 });
             } else {
-                Disposable newJ = AppDatabase.getDatabase(getContext()).jokeDao().countAvaibleJokes()
+                Disposable newJ = AppDatabase.getDatabase(getContext()).jokeDao().countAvaibleJokes(AppDatabase.MAX_NEW_JOKES)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(e -> {
                             if (e != null) {
                                 Log.i(TAG, "Total not so old jokes: " + e.toString());
                                 if (e < AppDatabase.MAX_NEW_JOKES) {
-                                    Disposable net = jokesService.getJoke(Host.CHUCK_NORRIS).subscribe(e2 -> {
+                                    Disposable net = jokesService.getJoke().subscribe(e2 -> {
                                         //Log.i(TAG, "Remote: " + e.toString());
                                         Observable.fromCallable(() -> {
                                             AppDatabase.getDatabase(getContext()).jokeDao().insertAll(e2);
                                             return true;
                                         }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe();
+                                    }, err -> {
+                                        Log.e(TAG, err.getMessage());
                                     });
                                 }
                             }
                         });
             }
-            Disposable d2 = Observable.fromCallable(() -> {
-                AppDatabase.getDatabase(getContext()).jokeDao().cleanUpOldJokes();
-                return true;
-            }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe();
+            AppDatabase.doClean(getContext());
         }
 
         @Override

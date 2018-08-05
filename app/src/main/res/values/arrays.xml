@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <!-- PREFERENCES -->
+    <!-- Hosts -->
+    <string-array name="pref_host_list">
+        <item>chucknorris.io</item>
+        <item>icanhazdadjoke.com</item>
+    </string-array>
+    <string-array name="pref_host_list_default_value">
+        <item>0</item>
+    </string-array>
+    <string-array name="pref_host_list_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+    <!-- Download & delete -->
+    <string-array name="pref_max_buffer">
+        <item>50</item>
+        <item>100</item>
+        <item>500</item>
+    </string-array>
+    <string-array name="pref_max_buffer_values">
+        <item>50</item>
+        <item>100</item>
+        <item>500</item>
+    </string-array>
+
+    <string-array name="pref_max_read">
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>10</item>
+        <item>20</item>
+    </string-array>
+    <string-array name="pref_max_read_value">
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>10</item>
+        <item>20</item>
+    </string-array>
+</resources>

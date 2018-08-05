@@ -18,6 +18,9 @@ public interface JokeDao {
     @Query("SELECT * FROM joke")
     public Maybe<List<Joke>> getAll();
 
+    @Query("SELECT * FROM joke where favorite=1")
+    public Maybe<List<Joke>> getFavorites();
+
     @Query("SELECT * FROM joke WHERE favorite = 0 and readtimes > :readTimes ")
     public Maybe<List<Joke>> getBurnedJokes(int readTimes);
 
@@ -33,11 +36,11 @@ public interface JokeDao {
     @Query("SELECT * FROM joke where favorite=0 order by readtimes limit 1")
     public Maybe<Joke> findLessReadedJoke();
 
-    @Query("SELECT count(1) FROM joke where favorite=0 and readtimes <=2")
-    public Maybe<Integer> countAvaibleJokes();
+    @Query("SELECT count(1) FROM joke where favorite=0 and readtimes <:readTimes")//3
+    public Maybe<Integer> countAvaibleJokes(int readTimes);
 
-    @Query("DELETE FROM joke where favorite=0 and readtimes>3")
-    public void cleanUpOldJokes();
+    @Query("DELETE FROM joke where favorite=0 and readtimes>:readTimes")//3
+    public void cleanUpOldJokes(int readTimes);
 
     @Insert
     public void insertAll(Joke... jokes);
